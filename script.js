@@ -26,6 +26,33 @@ function inputSwitch(input){
             return false;
             break;
         case '=':
+            operationArray.push(inputArray.join(''));
+            //convert to function later, maybe?
+            //goes through each entry in operationArray, two at a time, and stores it in a result variable that is used against the next expression. no order of execution here, folks!
+            let a = 0;
+            let b = 0;
+            let op = '';
+            operationArray.forEach(function(x,i){
+                console.log("a: "+a);
+                console.log("b: "+b);
+                //even index are nums, odd index are operators
+                if(i%2!==0){    //even index, op
+                    op = x;
+                }else if(i%2===0 && !a && !b){   //uneven index & unset a, num
+                    console.log(i);
+                    a = x;
+                }else if(i%2===0 && !b){
+                    b = x;
+                }
+                if(a && b){
+                    let result = doMath[op](a,b);
+                    clearDisplay();
+                    pushToDisplay(result)
+                    isEvalDone = true;
+                }
+            });
+
+            operationArray = [];        //empty operations array so continuous evaluation doesn't just compound the current integers
             console.log("equal");
             return false;
             break;
@@ -42,13 +69,21 @@ function inputSwitch(input){
         default:
             //if an operand has been chosen, empty the display when entering the next "step" of the calculation
             if(isOperandChosen){
+                operationArray.push(inputArray.join(''), chosenOperand);
                 clearDisplay();
+            }
+            if(isEvalDone){
+                isEvalDone = false;
+                clearDisplay();
+            }
+            //removes leading zero from cleared display
+            if(displayArray[0] == 0){
+                displayArray.splice(0,1);
             }
             //pushes integers to both input and display arrays
             isOperandChosen = false;
             pushToInputDisplay(input);
             console.log("num");
-            console.log(isOperandChosen);
             return true;
             break;
     }
@@ -67,6 +102,7 @@ function pushToInput(input){
 }
 //short function for pushing to display array
 function pushToDisplay(input){
+    if(displayArray[0]==0){displayArray.splice(0,1);}
     displayArray.push(input)
 }
 //calls both array push functions
@@ -93,23 +129,26 @@ function checkDisplayCharacterNum(){
 function clearDisplay(){
     currentNumbersOnDisplay = 0;
     inputArray = [];
-    displayArray = [];
+    displayArray = [0];
     emptyDisplay();
 }
 
 //math function - object containing multiple arithmetic functions
 //doMath[operand](x,y);
 let doMath = {
-    '+':function(x,y){return x+y;},
-    '-':function(x,y){return x-y;},
-    '/':function(x,y){return x/y;},
-    'x':function(x,y){return x*y;},
+    '+':function(x,y){return parseFloat(x)+parseFloat(y);},
+    '-':function(x,y){return parseFloat(x)-parseFloat(y);},
+    '/':function(x,y){return parseFloat(x)/parseFloat(y);},
+    'x':function(x,y){return parseFloat(x)*parseFloat(y);},
 }
 
 //array setup
 let inputArray = [];            //stores keypad input data
-let displayArray = [];          //stores display data
+let displayArray = [0];          //stores display data
 let operationArray = [];        //stores data for arithmetic operations
+
+//checks whether or not evaluation is complete
+let isEvalDone = false;
 
 //checks whether or not an operand has been chosen
 let isOperandChosen = false;
@@ -131,15 +170,16 @@ $('.button').on('mousedown',function(){
     //flushes the display before rendering new data
     emptyDisplay();
     appendToDisplay(displayArray);
-
-    console.log(operationArray);
 });
 
 $('.clear').on('mousedown',function(){
     //clears both input and display array as well as flushes display
     clearDisplay();
+    appendToDisplay(displayArray);
 });
 
 $('.junq').on('click',function(){
     window.open('https://github.com/junkdeck/','_blank');
 });
+
+appendToDisplay(0);

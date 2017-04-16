@@ -8,6 +8,7 @@
 *{
 	margin:0;
 	padding:0;
+    cursor:default;
 }
 html,body{
 	height:100%;
@@ -120,13 +121,14 @@ html,body{
     font-size: 1.448em;
     color:#e6e7f9;
 
-    background: #a32c42;
+    background: #a32c2c;
     border-radius: 5pt;
 
     box-shadow: 0 1px 0 0 #871e31,
                 0 3px 0 0 #871e31,
                 0 5px 0 0 #871e31;
     transition: 20ms ease-in;
+    cursor:pointer;cursor:hand;
 }
 .clear:active{
     top:12px;
@@ -182,6 +184,7 @@ html,body{
                 0 5px 0 0 #121113;
 
     transition: 20ms ease-in;
+    cursor:pointer;cursor:hand;
 }
 .button:active{
     box-shadow: 0 0 0 0 #121113,
