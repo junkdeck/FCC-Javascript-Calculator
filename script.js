@@ -1,3 +1,5 @@
+const DISPLAY_MAX_LENGTH = 11;
+
 function inputSwitch(input){
     //input switch - performs actions corresponding to the keypad input
     switch(input){
@@ -28,8 +30,10 @@ function inputSwitch(input){
         case '=':
             operationArray.push(inputArray.join(''));
             //convert to function later, maybe?
-            //goes through each entry in operationArray, two at a time, and stores it in a result variable that is used against the next expression. no order of execution here, folks!
-            performOps();
+            //goes through each entry in operationArray and evaluates the two parameters with the operator
+            //should probably call this whenever the user inputs an additional operator after 2 numbers.
+            //so if you input 2+2, then hit + again, it would evaluate 2+2 and print that to the display
+            performOps(operationArray);
             operationArray = [];        //empty operations array so continuous evaluation doesn't just compound the current integers
             console.log("equal");
             return false;
@@ -52,10 +56,12 @@ function inputSwitch(input){
             if(isOperandChosen){
                 operationArray.push(inputArray.join(''), chosenOperand);
                 clearDisplay();
+            //when you choose an operand, it pushes the current input data to the operation array. this also makes it so you can apply additional calculations to the result of the original evaluation
             }else if(isEvalDone&&!isOperandChosen){
                 isEvalDone = false;
                 clearDisplay();
             }
+            //
             // else if(isEvalDone&&isOperandChosen){
             //     operationArray.push(inputArray.join(''), chosenOperand);
             //     clearDisplay();
@@ -107,9 +113,9 @@ function checkDisplayCharacterNum(){
     if(inputArray[0] != 0){
         currentNumbersOnDisplay++;
     }
-    if(currentNumbersOnDisplay > 11){
+    if(currentNumbersOnDisplay > DISPLAY_MAX_LENGTH){
         displayArray.splice(0,1);
-        currentNumbersOnDisplay=11;
+        currentNumbersOnDisplay=DISPLAY_MAX_LENGTH;
     }
 }
 //clears the display and all associated arrays, as well as resetting current amount of numbers displayed
@@ -120,14 +126,14 @@ function clearDisplay(){
     emptyDisplay();
 }
 //performs the operations on the input numbers
-function performOps(){
+function performOps(inArray){
     console.log("input: "+inputArray);
     console.log("display: "+displayArray);
     console.log("operation: "+operationArray);
     let a = 0;
     let b = 0;
     let op = '';
-    operationArray.forEach(function(x,i){
+    inArray.forEach(function(x,i){
         //even index are nums, odd index are operators
         if(i%2!==0){    //even index, op
             op = x;
@@ -140,6 +146,25 @@ function performOps(){
             console.log("a: "+a);
             console.log("b: "+b);
             let result = doMath[op](a,b);
+            //if result is longer than 11 characters, chop off anything after 11
+            if(result.toString().length > DISPLAY_MAX_LENGTH){
+                //breaks the result into a string and removes all integers after display limit
+                result = result.toString().split('').slice(0,DISPLAY_MAX_LENGTH);//.join('');
+                //increments the last number in result if there's a decimal somewhere
+                if(result.includes('.')){
+                    console.log("result: "+result);
+                    //gets the last integer of the result and increments it
+                    let lastInt = result[DISPLAY_MAX_LENGTH-1];
+                    lastInt++;
+                    //removes the last integer of the result and pushes in the newly rounded integer
+                    result.splice(DISPLAY_MAX_LENGTH-1,1);
+                    result.push(lastInt);
+                }
+                //turns the result back into a float
+                result = parseFloat(result.join(''));
+            }
+            console.log("result: "+result);
+            console.log("result length: "+result.toString().length);
             clearDisplay();
             pushToInputDisplay(result);
             isEvalDone = true;
