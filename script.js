@@ -48,6 +48,8 @@ function inputSwitch(input){
                 return false;
             }
             break;
+        case '0':
+        console.log("0");
         default:
             if(inputArray[0]==0){
                 inputArray.splice(0,1);
@@ -207,9 +209,17 @@ $('.button').on('mousedown',function(){
     //stores true or false from the input switch - REQUIRED for only one decimal dot
     let switchResult = inputSwitch(input);
 
-    //only checks and deletes display characters if switch returns true,
-    //meaning there either decimal doesn't exist or wasn't pressed
+    //only checks and deletes display characters if switch returns true
+    //any decimals after 1, and all operators returns false
     if(switchResult){checkDisplayCharacterNum();}
+
+    //calculates the current inputs in operationArray if an operand has been pressed AND if there's already 2 inputs
+    if(operationArray.length >= 2  && isOperandChosen){
+        operationArray.push(inputArray);
+        performOps(operationArray);
+        operationArray = [];
+    }
+
     //flushes the display before rendering new data
     emptyDisplay();
     appendToDisplay(displayArray);
