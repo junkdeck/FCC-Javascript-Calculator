@@ -6,40 +6,35 @@ function inputSwitch(input){
         case '+':
             isOperandChosen = true;
             chosenOperand = '+';
-            console.log("add");
+            calcString();
             return false;
             break;
         case '-':
             isOperandChosen = true;
             chosenOperand = '-';
-            console.log("sub")
+            calcString();
             return false;
             break;
         case 'x':
             isOperandChosen = true;
             chosenOperand = 'x';
-            console.log("mult");
+            calcString();
             return false;
             break;
         case '/':
             isOperandChosen = true;
             chosenOperand = '/';
-            console.log("div");
+            calcString();
             return false;
             break;
         case '=':
             operationArray.push(inputArray.join(''));
-            //convert to function later, maybe?
             //goes through each entry in operationArray and evaluates the two parameters with the operator
-            //should probably call this whenever the user inputs an additional operator after 2 numbers.
-            //so if you input 2+2, then hit + again, it would evaluate 2+2 and print that to the display
             performOps(operationArray);
             operationArray = [];        //empty operations array so continuous evaluation doesn't just compound the current integers
-            console.log("equal");
             return false;
             break;
         case '.':
-            console.log("dot");
             //pushes a decimal dot to both input and display arrays if there isn't one already
             if(!hasDecimalDot(input)){
                 pushToInputDisplay('.');
@@ -48,18 +43,18 @@ function inputSwitch(input){
                 return false;
             }
             break;
-        case '0':
-        console.log("0");
         default:
             if(inputArray[0]==0){
                 inputArray.splice(0,1);
             }
             //if an operand has been chosen, empty the display when entering the next "step" of the calculation
+            //when you choose an operand, it pushes the current input data to the operation array. this also makes it so you can apply additional calculations to the result of the original evaluation
             if(isOperandChosen){
                 operationArray.push(inputArray.join(''), chosenOperand);
+                isOperandChosen = false;
                 clearDisplay();
-            //when you choose an operand, it pushes the current input data to the operation array. this also makes it so you can apply additional calculations to the result of the original evaluation
-            }else if(isEvalDone&&!isOperandChosen){
+            }
+            if(isEvalDone && !isOperandChosen){
                 isEvalDone = false;
                 clearDisplay();
             }
@@ -73,10 +68,7 @@ function inputSwitch(input){
                 displayArray.splice(0,1);
             }
             //pushes integers to both input and display arrays
-            isOperandChosen = false;
             pushToInputDisplay(input);
-            console.log("input: "+inputArray);
-            console.log("num");
             return true;
             break;
     }
@@ -127,11 +119,18 @@ function clearDisplay(){
     displayArray = [0];
     emptyDisplay();
 }
+
+function calcString(){
+    if(operationArray.length >= 2  && isOperandChosen){
+        operationArray.push(inputArray.join(''));
+        performOps(operationArray);
+        operationArray = [];
+        // isOperandChosen = false;
+        isEvalDone = false;
+    }
+}
 //performs the operations on the input numbers
 function performOps(inArray){
-    console.log("input: "+inputArray);
-    console.log("display: "+displayArray);
-    console.log("operation: "+operationArray);
     let a = 0;
     let b = 0;
     let op = '';
@@ -145,8 +144,6 @@ function performOps(inArray){
             b = x;
         }
         if(a && b){
-            console.log("a: "+a);
-            console.log("b: "+b);
             let result = doMath[op](a,b);
             //if result is longer than 11 characters, chop off anything after 11
             if(result.toString().length > DISPLAY_MAX_LENGTH){
@@ -154,7 +151,6 @@ function performOps(inArray){
                 result = result.toString().split('').slice(0,DISPLAY_MAX_LENGTH);//.join('');
                 //increments the last number in result if there's a decimal somewhere
                 if(result.includes('.')){
-                    console.log("result: "+result);
                     //gets the last integer of the result and increments it
                     let lastInt = result[DISPLAY_MAX_LENGTH-1];
                     lastInt++;
@@ -165,8 +161,6 @@ function performOps(inArray){
                 //turns the result back into a float
                 result = parseFloat(result.join(''));
             }
-            console.log("result: "+result);
-            console.log("result length: "+result.toString().length);
             clearDisplay();
             pushToInputDisplay(result);
             isEvalDone = true;
@@ -214,11 +208,7 @@ $('.button').on('mousedown',function(){
     if(switchResult){checkDisplayCharacterNum();}
 
     //calculates the current inputs in operationArray if an operand has been pressed AND if there's already 2 inputs
-    if(operationArray.length >= 2  && isOperandChosen){
-        operationArray.push(inputArray);
-        performOps(operationArray);
-        operationArray = [];
-    }
+    // calcString();
 
     //flushes the display before rendering new data
     emptyDisplay();
